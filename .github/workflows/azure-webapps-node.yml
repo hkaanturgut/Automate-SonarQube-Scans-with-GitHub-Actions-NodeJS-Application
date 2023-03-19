@@ -1,5 +1,5 @@
 on:
-  push:
+  pull_request:
     branches: [ "main" ]
   workflow_dispatch:
 
@@ -38,7 +38,16 @@ jobs:
       run: |
         npm run citest --coverage
         
-
+  sonarQubeTrigger:
+    name: SonarQube Trigger
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: SonarQube Scan
+      uses: kitabisa/sonarqube-action@master
+      with:
+        login: ${{ secrets.SONARQUBE_TOKEN }}
+        
   deploy:
     permissions:
       contents: none
@@ -54,10 +63,4 @@ jobs:
       with:
         name: node-app
 
-    - name: 'Deploy to Azure WebApp'
-      id: deploy-to-webapp
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+   
